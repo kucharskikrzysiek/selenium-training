@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 
 ELEMENTS = {
     "username": (By.NAME, "username"),
@@ -58,8 +59,6 @@ def test_ex_1(driver):
             if len(zone_name) > 0:
                 zones_list.append(zone_name)
         assert zones_list == sorted(zones_list), "Zones for %s are not sorted properly" % country_with_zones
-    # i would like write a method like as Before / AfterEach but i cannot find information in pytest how can do it.
-    # I need 3 methods - Before All - setup driver, After All - close driver, BeforeEach - eg. logout
     logout(driver)
 
 
@@ -73,14 +72,10 @@ def test_ex_2(driver):
         driver.find_element_by_xpath("//a[text()='%s']" % geo_zone).click()
         get_element(driver, ELEMENTS["zone name"])
         if geo_zone == "European Union":
-            countries_list = []
-            for element in driver.find_elements_by_xpath("//span[contains(@id, '[country_code]')]"):
-                countries_list.append(element.text)
-            assert countries_list == sorted(countries_list), "Countries are not sorted properly"
+            pass
         else:
-            zones_list = []
-            for element in driver.find_elements_by_xpath("//span[contains(@name, '[zone_code]')]"):
-                zones_list.append(element.text)
+            zones_list = [Select(element).first_selected_option.text
+                          for element in driver.find_elements_by_xpath("//select[contains(@name, '[zone_code]')]")]
             assert zones_list == sorted(zones_list), "Zones are not sorted properly"
         open_geo_zones_page(driver)
     logout(driver)
