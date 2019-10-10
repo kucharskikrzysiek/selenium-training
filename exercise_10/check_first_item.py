@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from gistfile1 import ColorNames
 
 ELEMENTS = {
     "region": (By.ID, "region"),
@@ -31,12 +32,12 @@ def test_1_check_first_item(driver):
     name_of_item_value = first_item.find_element_by_class_name("name").text
     regular_price = {
         "value": first_item.find_element_by_class_name("regular-price").text,
-        "color": first_item.find_element_by_class_name("regular-price").value_of_css_property("color"),
+        "color": get_color(first_item.find_element_by_class_name("regular-price").value_of_css_property("color")),
         "text style": first_item.find_element_by_class_name("regular-price").value_of_css_property("text-decoration"),
     }
     campaign_price = {
         "value": first_item.find_element_by_class_name("campaign-price").text,
-        "color": first_item.find_element_by_class_name("campaign-price").value_of_css_property("color"),
+        "color": get_color(first_item.find_element_by_class_name("campaign-price").value_of_css_property("color")),
         "text style": first_item.find_element_by_class_name("campaign-price").value_of_css_property("font-weight"),
     }
     first_item.click()
@@ -47,13 +48,13 @@ def test_1_check_first_item(driver):
         "regular price value":
             get_element(driver, ELEMENTS["product details regular price"]).text,
         "regular price color":
-            get_element(driver, ELEMENTS["product details regular price"]).value_of_css_property("color"),
+            get_color(get_element(driver, ELEMENTS["product details regular price"]).value_of_css_property("color")),
         "regular price text style":
             get_element(driver, ELEMENTS["product details regular price"]).value_of_css_property("text-decoration"),
         "campaign price value":
             get_element(driver, ELEMENTS["product details campaign price"]).text,
         "campaign price color":
-            get_element(driver, ELEMENTS["product details campaign price"]).value_of_css_property("color"),
+            get_color(get_element(driver, ELEMENTS["product details campaign price"]).value_of_css_property("color")),
         "campaign price text style":
             get_element(driver, ELEMENTS["product details campaign price"]).value_of_css_property("font-weight"),
     }
@@ -74,3 +75,9 @@ def get_element(driver, element_tuple, timeout=10):
 def get_elements(driver, element_tuple, timeout=10):
     WebDriverWait(driver, timeout).until(EC.presence_of_all_elements_located(element_tuple))
     return driver.find_elements(element_tuple[0], element_tuple[1])
+
+
+def get_color(rgba):
+    rgba = rgba.replace("rgba", "").replace("(", "").replace(")", "").split(",")
+    color_tuple = (int(rgba[0]), int(rgba[1]), int(rgba[2]))
+    return ColorNames.findNearestWebColorName(color_tuple)
